@@ -1,0 +1,11 @@
+{
+  "admin": {
+    "providers": {
+      "ogcapi-example": {
+        "type": "ogcapi",
+        "label": "OGC API Demo",
+        "url": "https://demo.pygeoapi.io/stable"
+      }
+    }
+  }
+}

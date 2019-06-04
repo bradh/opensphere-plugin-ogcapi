@@ -47,7 +47,6 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
     return;
   }
 
-  console.log('parsed json', links);
   if (!goog.isArray(links)) {
     this.onError('Expected an array of links but got something else');
     return;
@@ -55,12 +54,8 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
 
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    if (link.rel === 'conformance') {
-      // TODO: check conformance
-      console.log('conformance URL: ', link.href);
-    }
+    // TODO: if link.rel is 'conformance', then check conformance statement at link.href
     if ((link.rel === 'data') && (link.type === 'application/json')) {
-      console.log('href: ', link.href);
       this.loadCollection(link.href);
     }
   }
@@ -89,7 +84,6 @@ plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
   }
 
   var collections = json['collections'];
-  console.log('collections: ', collections);
 
   var children = /** @type {Array<!os.structs.ITreeNode>} */ (collections.map(this.toChildNode, this).filter(os.fn.filterFalsey));
   this.setChildren(children);
@@ -114,6 +108,10 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
       break;
     }
   }
+  // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
+  // TODO: check if we already have a ? in the URL
+  url += '&limit=10000';
+
   var config = {
     'type': 'geojson',
     'id': id,

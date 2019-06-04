@@ -20,7 +20,7 @@ plugin.ogcapi.mime.detect = function(buffer, file, opt_context) {
       var link = links[i];
       if (link['rel'] === 'conformance') {
         console.log('conformance: ',  link);
-        retVal = "application/json";
+        retVal = plugin.ogcapi.ID;
         break;
       }
     }
@@ -29,12 +29,4 @@ plugin.ogcapi.mime.detect = function(buffer, file, opt_context) {
   return goog.Promise.resolve(retVal);
 };
 
-os.file.mime.register(
-    // for providers, this must be the same as the ProviderEntry ID
-    plugin.ogcapi.ID,
-    // our detect function
-    plugin.ogcapi.mime.detect,
-    // the priority; lower numbers run earlier
-    0,
-    // the parent type
-    os.file.mime.json.TYPE);
+os.file.mime.register(plugin.ogcapi.ID, plugin.ogcapi.mime.detect, 0, os.file.mime.json.TYPE);

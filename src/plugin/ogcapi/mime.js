@@ -3,6 +3,7 @@ goog.provide('plugin.ogcapi.mime');
 goog.require('goog.Promise');
 goog.require('os.file.mime');
 goog.require('os.file.mime.json');
+goog.require('plugin.ogcapi.ID');
 
 
 /**

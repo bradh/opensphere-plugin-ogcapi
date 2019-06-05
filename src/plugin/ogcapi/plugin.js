@@ -6,6 +6,7 @@ goog.require('os.plugin.AbstractPlugin');
 goog.require('os.plugin.PluginManager');
 goog.require('os.ui.ProviderImportUI');
 goog.require('plugin.ogcapi.DataProvider');
+goog.require('plugin.ogcapi.ID');
 goog.require('plugin.ogcapi.mime');
 goog.require('plugin.ogcapi.ogcapiImportDirective');
 
@@ -20,12 +21,6 @@ plugin.ogcapi.Plugin = function() {
   this.errorMessage = null;
 };
 goog.inherits(plugin.ogcapi.Plugin, os.plugin.AbstractPlugin);
-
-/**
- * @type {string}
- * @const
- */
-plugin.ogcapi.ID = 'ogcapi';
 
 /**
  * @inheritDoc

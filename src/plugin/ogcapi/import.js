@@ -46,6 +46,7 @@ plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
   $scope['config']['url'] = file ? file.getUrl() : this.getUrl();
   $scope['urlExample'] = 'https://www.example.com/index.json';
   $scope['config']['type'] = plugin.ogcapi.ID;
+  // TODO: parse config URL, get openapi, and then read info -> title.
   $scope['config']['label'] = this.getLabel() || 'ogcapi';
 };
 goog.inherits(plugin.ogcapi.ogcapiImportCtrl, os.ui.SingleUrlProviderImportCtrl);

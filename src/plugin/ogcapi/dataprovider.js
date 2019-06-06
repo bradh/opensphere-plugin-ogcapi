@@ -43,11 +43,13 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
       var links = json.links;
     }
   } catch (e) {
+    // console.log('Malformed JSON');
     this.onError('Malformed JSON');
     return;
   }
 
   if (!goog.isArray(links)) {
+    // console.log('Expected an array of links but got something else');
     this.onError('Expected an array of links but got something else');
     return;
   }
@@ -63,12 +65,12 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
 
 /**
  * @param {string} collectionurl
- * @protected
  */
 plugin.ogcapi.DataProvider.prototype.loadCollection = function (collectionurl) {
+  // console.log('collection load: ' + collectionurl);
   new os.net.Request(collectionurl).getPromise().
-    then(this.onCollectionLoad, this.onError, this).
-    thenCatch(this.onError, this);
+    then(this.onCollectionLoad, this.onCollectionError, this).
+    thenCatch(this.onCollectionError, this);
 }
 
 /**
@@ -76,10 +78,11 @@ plugin.ogcapi.DataProvider.prototype.loadCollection = function (collectionurl) {
  * @protected
  */
 plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
+  // console.log('onCollectionLoad');
   try {
     var json = JSON.parse(response);
   } catch (e) {
-    this.onError('Malformed CollectionsJSON');
+    this.onCollectionError('Malformed CollectionsJSON');
     return;
   }
 
@@ -109,9 +112,11 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
     }
   }
   // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
-  // TODO: check if we already have a ? in the URL
-  url += '&limit=10000';
-
+  if (url.includes('?')) {
+    url += '&limit=10000';
+  } else {
+    url += '?limit=10000';
+  }
   var config = {
     'type': 'geojson',
     'id': id,
@@ -124,14 +129,13 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
     'url': url,
     'delayUpdateActive': true
   };
+
   var descriptor = /** @type {os.data.ConfigDescriptor} */ (os.dataManager.getDescriptor(id));
   if (!descriptor) {
     descriptor = new os.data.ConfigDescriptor();
   }
 
   descriptor.setBaseConfig(config);
-
-  // add the descriptor to the data manager
   os.dataManager.addDescriptor(descriptor);
 
   // mark the descriptor as ready if the user had it enabled previously
@@ -139,7 +143,6 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
 
   var node = new os.ui.data.DescriptorNode();
   node.setDescriptor(descriptor);
-
   return node;
 };
 
@@ -148,6 +151,16 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
  * @protected
  */
 plugin.ogcapi.DataProvider.prototype.onError = function (e) {
+  var msg = goog.isArray(e) ? e.join(' ') : e.toString();
+  this.setErrorMessage(msg);
+};
+
+/**
+ * @param {*} e
+ * @protected
+ */
+plugin.ogcapi.DataProvider.prototype.onCollectionError = function (e) {
+  // console.log('onCollectionError');
   var msg = goog.isArray(e) ? e.join(' ') : e.toString();
   this.setErrorMessage(msg);
 };

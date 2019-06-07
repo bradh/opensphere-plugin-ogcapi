@@ -1,6 +1,7 @@
 goog.provide('plugin.ogcapi.ogcapiImportCtrl');
 goog.provide('plugin.ogcapi.ogcapiImportDirective');
 
+goog.require('goog.async.ConditionalDelay');
 goog.require('os.defines');
 goog.require('os.ui.Module');
 goog.require('os.ui.SingleUrlProviderImportCtrl');
@@ -48,9 +49,16 @@ plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
   var url = $scope['config']['url'];
   var landingPageParser = new plugin.ogcapi.LandingPageParser();
   landingPageParser.load(url);
+  var titleDelay = new goog.async.ConditionalDelay(landingPageParser.hasTitle, landingPageParser);
+  titleDelay.onSuccess = function() {
+    var title = landingPageParser.getTitle();
+    $scope.$apply(function(){
+      $scope['config']['label'] = title;
+    });
+  };
+  titleDelay.start(100, 5000);
   $scope['urlExample'] = 'https://www.example.com/index.json';
   $scope['config']['type'] = plugin.ogcapi.ID;
-  // TODO: parse config URL, get openapi, and then read info -> title.
   $scope['config']['label'] = this.getLabel() || 'ogcapi';
 };
 goog.inherits(plugin.ogcapi.ogcapiImportCtrl, os.ui.SingleUrlProviderImportCtrl);

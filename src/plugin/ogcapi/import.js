@@ -6,6 +6,7 @@ goog.require('os.ui.Module');
 goog.require('os.ui.SingleUrlProviderImportCtrl');
 goog.require('os.ui.window');
 goog.require('plugin.ogcapi.DataProvider');
+goog.require('plugin.ogcapi.LandingPageParser');
 
 
 /**
@@ -44,6 +45,9 @@ plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
 
   var file = /** @type {os.file.File} */ ($scope['config']['file']);
   $scope['config']['url'] = file ? file.getUrl() : this.getUrl();
+  var url = $scope['config']['url'];
+  var landingPageParser = new plugin.ogcapi.LandingPageParser();
+  landingPageParser.load(url);
   $scope['urlExample'] = 'https://www.example.com/index.json';
   $scope['config']['type'] = plugin.ogcapi.ID;
   // TODO: parse config URL, get openapi, and then read info -> title.

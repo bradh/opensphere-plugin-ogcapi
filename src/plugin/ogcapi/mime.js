@@ -20,9 +20,8 @@ plugin.ogcapi.mime.detect = function(buffer, file, opt_context) {
     for (var i = 0; i < links.length; i++) {
       var link = links[i];
       if (link['rel'] === 'conformance') {
-        console.log('conformance: ',  link);
         retVal = plugin.ogcapi.ID;
-        break;
+        break
       }
     }
   }

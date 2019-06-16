@@ -56,12 +56,47 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
 
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    // TODO: if link.rel is 'conformance', then check conformance statement at link.href
+    if ((link.rel === 'conformance') && (link.type === 'application/json')) {
+      this.loadConformance(link.href);
+    }
     if ((link.rel === 'data') && (link.type === 'application/json')) {
       this.loadCollection(link.href);
     }
   }
 };
+
+/**
+ * @param {string} conformanceurl
+ */
+plugin.ogcapi.DataProvider.prototype.loadConformance = function (conformanceurl) {
+  new os.net.Request(conformanceurl).getPromise().
+    then(this.onConformanceLoad, this.onError, this).
+    thenCatch(this.onError, this);
+}
+
+/**
+ * @param {string} response
+ * @protected
+ */
+plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function (response) {
+  try {
+    var json = JSON.parse(response);
+  } catch (e) {
+    this.onError('Malformed ConformanceJSON');
+    return;
+  }
+
+  var conformance = json['conformsTo'];
+  if (!goog.isArray(conformance)) {
+    this.onError('Expected an array of conformance statements but got something else');
+    return;
+  }
+  var isWFS3 = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/core');
+  var hasJSONsupport = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/geojson');
+  if (!isWFS3 || !hasJSONsupport) {
+    this.onError("Server does not claim to support WFS3 GeoJSON");
+  }
+}
 
 /**
  * @param {string} collectionurl
@@ -72,6 +107,7 @@ plugin.ogcapi.DataProvider.prototype.loadCollection = function (collectionurl) {
     then(this.onCollectionLoad, this.onCollectionError, this).
     thenCatch(this.onCollectionError, this);
 }
+
 
 /**
  * @param {string} response

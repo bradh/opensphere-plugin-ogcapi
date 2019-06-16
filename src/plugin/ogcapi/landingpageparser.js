@@ -64,7 +64,7 @@ plugin.ogcapi.LandingPageParser.prototype.onLoad = function (response) {
   try {
     var json = JSON.parse(response);
     if (json.hasOwnProperty('links')) {
-      var links = json.links;
+      var links = json['links'];
     }
   } catch (e) {
     this.onError('Malformed JSON');
@@ -76,6 +76,9 @@ plugin.ogcapi.LandingPageParser.prototype.onLoad = function (response) {
     return;
   }
 
+  if (json.hasOwnProperty('title')) {
+    this.title_ = json['title'];
+  }
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     this.handleLink_(link);
@@ -95,9 +98,9 @@ plugin.ogcapi.LandingPageParser.prototype.handleLink_ = function (link) {
     this.links_['conformance'] = link['href'];
   } else if ((rel === 'service') && (format === 'application/openapi+json;version=3.0')) {
     this.links_['service'] = link['href'];
-    // TODO: once https://github.com/opengeospatial/WFS_FES/issues/227 is resolved we might not
-    // need to do this every time.
-    this.loadService(link['href']);
+    if (this.title_ === null) {
+      this.loadService(link['href']);
+    }
   } else if ((rel === 'data') && (format === 'application/json')) {
     this.links_['data'] = link['href'];
   }

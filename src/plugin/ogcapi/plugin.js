@@ -32,7 +32,7 @@ plugin.ogcapi.Plugin.prototype.init = function() {
       plugin.ogcapi.DataProvider,
       'OGC API',
       'OGC API layers'
-      ));
+  ));
   dm.registerDescriptorType(plugin.ogcapi.ID, os.data.ConfigDescriptor);
 
   var im = os.ui.im.ImportManager.getInstance();

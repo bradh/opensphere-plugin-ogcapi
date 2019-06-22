@@ -9,11 +9,11 @@ goog.require('os.net.Request');
  *
  * @constructor
  */
-plugin.ogcapi.LandingPageParser = function () {
+plugin.ogcapi.LandingPageParser = function() {
   this.links_ = {};
 };
 
-plugin.ogcapi.LandingPageParser.prototype.errorMessage_ = "";
+plugin.ogcapi.LandingPageParser.prototype.errorMessage_ = '';
 
 plugin.ogcapi.LandingPageParser.prototype.links_ = {};
 
@@ -21,38 +21,38 @@ plugin.ogcapi.LandingPageParser.prototype.title_ = null;
 
 /**
  * Get the parsed links
- * @returns {Object}
+ * @return {Object}
  */
-plugin.ogcapi.LandingPageParser.prototype.getLinks = function () {
+plugin.ogcapi.LandingPageParser.prototype.getLinks = function() {
   return this.links_;
-}
+};
 
 /**
  * Check whether we have a title
- * @returns {boolean}
+ * @return {boolean}
  */
-plugin.ogcapi.LandingPageParser.prototype.hasTitle = function () {
+plugin.ogcapi.LandingPageParser.prototype.hasTitle = function() {
   return (this.title_ !== null);
-}
+};
 
 /**
  * The title
- * @returns {String}
+ * @return {string}
  */
-plugin.ogcapi.LandingPageParser.prototype.getTitle = function () {
+plugin.ogcapi.LandingPageParser.prototype.getTitle = function() {
   return this.title_;
-}
+};
 
 /**
  * Load the specified url
  *
  * @param {string} url
  */
-plugin.ogcapi.LandingPageParser.prototype.load = function (url) {
+plugin.ogcapi.LandingPageParser.prototype.load = function(url) {
   new os.net.Request(url).getPromise().
-    then(this.onLoad, this.onError, this).
-    thenCatch(this.onError, this);
-}
+      then(this.onLoad, this.onError, this).
+      thenCatch(this.onError, this);
+};
 
 /**
  * Process the response JSON
@@ -60,7 +60,7 @@ plugin.ogcapi.LandingPageParser.prototype.load = function (url) {
  * @param {string} response
  * @protected
  */
-plugin.ogcapi.LandingPageParser.prototype.onLoad = function (response) {
+plugin.ogcapi.LandingPageParser.prototype.onLoad = function(response) {
   try {
     var json = JSON.parse(response);
     if (json.hasOwnProperty('links')) {
@@ -88,7 +88,7 @@ plugin.ogcapi.LandingPageParser.prototype.onLoad = function (response) {
 /**
  * @param {Object} link
  */
-plugin.ogcapi.LandingPageParser.prototype.handleLink_ = function (link) {
+plugin.ogcapi.LandingPageParser.prototype.handleLink_ = function(link) {
   if (!link.hasOwnProperty('rel') || !link.hasOwnProperty('href') || !link.hasOwnProperty('type')) {
     return;
   }
@@ -110,7 +110,7 @@ plugin.ogcapi.LandingPageParser.prototype.handleLink_ = function (link) {
  * @param {*} e
  * @protected
  */
-plugin.ogcapi.LandingPageParser.prototype.onError = function (e) {
+plugin.ogcapi.LandingPageParser.prototype.onError = function(e) {
   this.errorMessage_ = goog.isArray(e) ? e.join(' ') : e.toString();
 };
 
@@ -119,11 +119,11 @@ plugin.ogcapi.LandingPageParser.prototype.onError = function (e) {
  *
  * @param {string} url
  */
-plugin.ogcapi.LandingPageParser.prototype.loadService = function (url) {
+plugin.ogcapi.LandingPageParser.prototype.loadService = function(url) {
   new os.net.Request(url).getPromise().
-    then(this.onServiceLoad, this.onError, this).
-    thenCatch(this.onError, this);
-}
+      then(this.onServiceLoad, this.onError, this).
+      thenCatch(this.onError, this);
+};
 
 /**
  * Process the response JSON for the OpenAPI definition
@@ -131,7 +131,7 @@ plugin.ogcapi.LandingPageParser.prototype.loadService = function (url) {
  * @param {string} response
  * @protected
  */
-plugin.ogcapi.LandingPageParser.prototype.onServiceLoad = function (response) {
+plugin.ogcapi.LandingPageParser.prototype.onServiceLoad = function(response) {
   try {
     var json = JSON.parse(response);
     if (json.hasOwnProperty('info')) {

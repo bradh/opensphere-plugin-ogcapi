@@ -19,12 +19,12 @@ describe('plugin.ogcapi.mime', function() {
       '/base/test/resources/ogc/wfs-200.xml',
       '/base/test/resources/ogc/wfs-110.xml',
       '/base/test/resources/ogc/exception-report.xml'],
-        os.file.mime.mock.testNo(plugin.ogcapi.ID));
+    os.file.mime.mock.testNo(plugin.ogcapi.ID));
   });
 
   it('should detect files that are OGC API files', function() {
     os.file.mime.mock.testFiles([
       '/base/test/resources/ogcapi/pygeoapi.json'],
-        os.file.mime.mock.testYes(plugin.ogcapi.ID));
+    os.file.mime.mock.testYes(plugin.ogcapi.ID));
   });
 });

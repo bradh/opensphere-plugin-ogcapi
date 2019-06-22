@@ -10,11 +10,11 @@ goog.require('plugin.ogcapi.DataProvider');
 goog.require('plugin.ogcapi.LandingPageParser');
 
 
+/* istanbul ignore next */
 /**
  * The OGC API import directive
  * @return {angular.Directive}
  */
-/* istanbul ignore next */
 plugin.ogcapi.ogcapiImportDirective = function() {
   return {
     restrict: 'E',
@@ -32,6 +32,7 @@ plugin.ogcapi.ogcapiImportDirective = function() {
 os.ui.Module.directive('ogcapi', [plugin.ogcapi.ogcapiImportDirective]);
 
 
+/* istanbul ignore next */
 /**
  * Controller for the OGC API server import dialog
  * @param {!angular.Scope} $scope
@@ -40,7 +41,6 @@ os.ui.Module.directive('ogcapi', [plugin.ogcapi.ogcapiImportDirective]);
  * @constructor
  * @ngInject
  */
-/* istanbul ignore next */
 plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
   plugin.ogcapi.ogcapiImportCtrl.base(this, 'constructor', $scope, $element);
 
@@ -50,9 +50,12 @@ plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
   var landingPageParser = new plugin.ogcapi.LandingPageParser();
   landingPageParser.load(url);
   var titleDelay = new goog.async.ConditionalDelay(landingPageParser.hasTitle, landingPageParser);
+  /**
+   * Internal callback handler
+   */
   titleDelay.onSuccess = function() {
     var title = landingPageParser.getTitle();
-    $scope.$apply(function(){
+    $scope.$apply(function() {
       $scope['config']['label'] = title;
     });
   };
@@ -64,10 +67,10 @@ plugin.ogcapi.ogcapiImportCtrl = function($scope, $element) {
 goog.inherits(plugin.ogcapi.ogcapiImportCtrl, os.ui.SingleUrlProviderImportCtrl);
 
 
+/* istanbul ignore next */
 /**
  * @inheritDoc
  */
-/* istanbul ignore next */
 plugin.ogcapi.ogcapiImportCtrl.prototype.getDataProvider = function() {
   var dp = new plugin.ogcapi.DataProvider();
   dp.configure(this.scope['config']);
@@ -75,29 +78,27 @@ plugin.ogcapi.ogcapiImportCtrl.prototype.getDataProvider = function() {
 };
 
 
+/* istanbul ignore next */
 /**
  * @inheritDoc
  */
-/* istanbul ignore next */
 plugin.ogcapi.ogcapiImportCtrl.prototype.getUrl = function() {
   if (this.dp) {
     var url = /** @type {plugin.ogcapi.DataProvider} */ (this.dp).getUrl();
     return url || '';
   }
-
   return '';
 };
 
 
+/* istanbul ignore next */
 /**
  * @return {string}
  */
-/* istanbul ignore next */
 plugin.ogcapi.ogcapiImportCtrl.prototype.getLabel = function() {
   if (this.dp) {
     var label = /** @type {plugin.ogcapi.DataProvider} */ (this.dp).getLabel();
     return label || '';
   }
-
   return '';
 };

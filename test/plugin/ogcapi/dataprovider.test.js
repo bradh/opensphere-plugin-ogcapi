@@ -7,6 +7,9 @@ goog.require('plugin.ogcapi.ID');
 var jsonText = '{"links": [{"rel": "self", "type": "application/json", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/stable"}, {"rel": "self", "type": "text/html", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/stable/?f=html", "hreflang": "en-US"}, {"rel": "service", "type": "application/openapi+json;version=3.0", "title": "The OpenAPI definition as JSON", "href": "https://demo.pygeoapi.io/stable/api"}, {"rel": "self", "type": "text/html", "title": "The OpenAPI definition as HTML", "href": "https://demo.pygeoapi.io/stable/api?f=html", "hreflang": "en-US"}, {"rel": "conformance", "type": "application/json", "title": "conformance", "href": "https://demo.pygeoapi.io/stable/conformance"}, {"rel": "data", "type": "application/json", "title": "collections", "href": "https://demo.pygeoapi.io/stable/collections"}]}';
 var conformanceText = '{"conformsTo": ["http://www.opengis.net/spec/wfs-1/3.0/req/core", "http://www.opengis.net/spec/wfs-1/3.0/req/oas30", "http://www.opengis.net/spec/wfs-1/3.0/req/html", "http://www.opengis.net/spec/wfs-1/3.0/req/geojson"]}'
 var collectionText = '{"collections": [{"links": [{"type": "text/csv", "rel": "canonical", "title": "data", "href": "https://github.com/mapserver/mapserver/blob/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "text/csv", "rel": "alternate", "title": "data", "href": "https://raw.githubusercontent.com/mapserver/mapserver/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/obs/items"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/obs?f=json"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "name": "obs", "title": "Observations", "description": "Observations", "extent": [-180, -90, 180, 90]}, {"links": [{"type": "text/html", "rel": "canonical", "title": "information", "href": "http://www.naturalearthdata.com/", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=json"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/lakes"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "name": "lakes", "title": "Large Lakes", "description": "lakes of the world, public domain", "extent": [-180, -90, 180, 90]}]}';
+var collectionTextWithId = '{"collections": [{"links": [{"type": "text/csv", "rel": "canonical", "title": "data", "href": "https://github.com/mapserver/mapserver/blob/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "text/csv", "rel": "alternate", "title": "data", "href": "https://raw.githubusercontent.com/mapserver/mapserver/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/obs/items"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/obs?f=json"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "id": "obs", "title": "Observations", "description": "Observations", "extent": [-180, -90, 180, 90]}, {"links": [{"type": "text/html", "rel": "canonical", "title": "information", "href": "http://www.naturalearthdata.com/", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=json"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/lakes"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "id": "lakes", "title": "Large Lakes", "description": "lakes of the world, public domain", "extent": [-180, -90, 180, 90]}]}';
+var collectionTextMissingId = '{"collections": [{"links": [{"type": "text/csv", "rel": "canonical", "title": "data", "href": "https://github.com/mapserver/mapserver/blob/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "text/csv", "rel": "alternate", "title": "data", "href": "https://raw.githubusercontent.com/mapserver/mapserver/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/obs/items"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/obs?f=json"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "title": "Observations", "description": "Observations", "extent": [-180, -90, 180, 90]}, {"links": [{"type": "text/html", "rel": "canonical", "title": "information", "href": "http://www.naturalearthdata.com/", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=json"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/lakes"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "id": "lakes", "title": "Large Lakes", "description": "lakes of the world, public domain", "extent": [-180, -90, 180, 90]}]}';
+var collectionTextMissingURL = '{"collections": [{"links": [{"type": "text/csv", "rel": "canonical", "title": "data", "href": "https://github.com/mapserver/mapserver/blob/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "text/csv", "rel": "alternate", "title": "data", "href": "https://raw.githubusercontent.com/mapserver/mapserver/branch-7-0/msautotest/wxs/data/obs.csv", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/obs?f=json"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/obs?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "id": "obs", "title": "Observations", "description": "Observations", "extent": [-180, -90, 180, 90]}, {"links": [{"type": "text/html", "rel": "canonical", "title": "information", "href": "http://www.naturalearthdata.com/", "hreflang": "en-US"}, {"type": "application/geo+json", "rel": "item", "title": "Features as GeoJSON", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=json"}, {"type": "text/html", "rel": "item", "title": "Features as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes/items?f=html"}, {"type": "application/json", "rel": "self", "title": "This document as JSON", "href": "https://demo.pygeoapi.io/master/collections/lakes"}, {"type": "text/html", "rel": "alternate", "title": "This document as HTML", "href": "https://demo.pygeoapi.io/master/collections/lakes?f=html"}], "crs": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84"], "id": "lakes", "title": "Large Lakes", "description": "lakes of the world, public domain", "extent": [-180, -90, 180, 90]}]}';
 
 describe('plugin.ogcapi.DataProvider', function() {
   it('should configure properly', function() {
@@ -280,6 +283,76 @@ describe('plugin.ogcapi.DataProvider', function() {
     runs(function() {
       expect(p.onCollectionLoad).toHaveBeenCalled();
       expect(p.onCollectionError).not.toHaveBeenCalled();
+      expect(p.getChildren().length).toBe(2);
+    });
+  });
+
+  it('should parse OGC API Collection JSON with new style IDs instead of names', function() {
+    var p = new plugin.ogcapi.DataProvider();
+    p.setUrl('/something');
+
+    spyOn(os.net.Request.prototype, 'getPromise').andReturn(goog.Promise.resolve(collectionTextWithId));
+    spyOn(p, 'onCollectionLoad').andCallThrough();
+    spyOn(p, 'onCollectionError').andCallThrough();
+
+    runs(function() {
+      p.loadCollection('x');
+    });
+
+    waitsFor(function() {
+      return p.onCollectionLoad.calls.length;
+    });
+
+    runs(function() {
+      expect(p.onCollectionLoad).toHaveBeenCalled();
+      expect(p.onCollectionError).not.toHaveBeenCalled();
+      expect(p.getChildren().length).toBe(2);
+    });
+  });
+
+  it('should skip OGC API Collection nodes with no IDs', function() {
+    var p = new plugin.ogcapi.DataProvider();
+    p.setUrl('/something');
+
+    spyOn(os.net.Request.prototype, 'getPromise').andReturn(goog.Promise.resolve(collectionTextMissingId));
+    spyOn(p, 'onCollectionLoad').andCallThrough();
+    spyOn(p, 'onCollectionError').andCallThrough();
+
+    runs(function() {
+      p.loadCollection('x');
+    });
+
+    waitsFor(function() {
+      return p.onCollectionLoad.calls.length;
+    });
+
+    runs(function() {
+      expect(p.onCollectionLoad).toHaveBeenCalled();
+      expect(p.onCollectionError).not.toHaveBeenCalled();
+      expect(p.getChildren().length).toBe(1);
+    });
+  });
+
+  it('should skip OGC API Collection nodes with no URLs', function() {
+    var p = new plugin.ogcapi.DataProvider();
+    p.setUrl('/something');
+
+    spyOn(os.net.Request.prototype, 'getPromise').andReturn(goog.Promise.resolve(collectionTextMissingURL));
+    spyOn(p, 'onCollectionLoad').andCallThrough();
+    spyOn(p, 'onCollectionError').andCallThrough();
+
+    runs(function() {
+      p.loadCollection('x');
+    });
+
+    waitsFor(function() {
+      return p.onCollectionLoad.calls.length;
+    });
+
+    runs(function() {
+      expect(p.onCollectionLoad).toHaveBeenCalled();
+      expect(p.onCollectionError).not.toHaveBeenCalled();
+      expect(p.getChildren().length).toBe(1);
     });
   });
 

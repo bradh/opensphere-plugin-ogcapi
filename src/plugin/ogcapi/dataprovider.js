@@ -137,22 +137,35 @@ plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
 plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
   // TODO: sanity checks
 
-  var id = this.getId() + os.ui.data.BaseProvider.ID_DELIMITER + collection['name'];
+  let collectionid = collection['id'];
+  if (!collectionid) {
+    collectionid = collection['name'];
+  }
+  if (!collectionid) {
+    return null;
+  }
+  var id = this.getId() + os.ui.data.BaseProvider.ID_DELIMITER + collectionid;
 
+  var url = null;
   var links = collection['links'];
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    if (link['type'] === 'application/geo+json') {
-      var url = link['href'];
+    if ((link['type'] === 'application/geo+json') && (link.hasOwnProperty('href'))) {
+      url = link['href'];
       break;
     }
   }
+  if (!url) {
+    return null;
+  }
+
   // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
   if (url.includes('?')) {
     url += '&limit=10000';
   } else {
     url += '?limit=10000';
   }
+
   var config = {
     'type': 'geojson',
     'id': id,

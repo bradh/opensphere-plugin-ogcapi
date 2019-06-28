@@ -13,6 +13,7 @@ goog.require('plugin.ogcapi.LandingPageParser');
 /* istanbul ignore next */
 /**
  * The OGC API import directive
+ *
  * @return {angular.Directive}
  */
 plugin.ogcapi.ogcapiImportDirective = function() {
@@ -35,6 +36,7 @@ os.ui.Module.directive('ogcapi', [plugin.ogcapi.ogcapiImportDirective]);
 /* istanbul ignore next */
 /**
  * Controller for the OGC API server import dialog
+ *
  * @param {!angular.Scope} $scope
  * @param {!angular.JQLite} $element
  * @extends {os.ui.SingleUrlProviderImportCtrl}

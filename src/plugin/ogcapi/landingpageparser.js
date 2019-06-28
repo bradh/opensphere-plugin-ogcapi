@@ -21,6 +21,7 @@ plugin.ogcapi.LandingPageParser.prototype.title_ = null;
 
 /**
  * Get the parsed links
+ *
  * @return {Object}
  */
 plugin.ogcapi.LandingPageParser.prototype.getLinks = function() {
@@ -29,6 +30,7 @@ plugin.ogcapi.LandingPageParser.prototype.getLinks = function() {
 
 /**
  * Check whether we have a title
+ *
  * @return {boolean}
  */
 plugin.ogcapi.LandingPageParser.prototype.hasTitle = function() {
@@ -37,7 +39,8 @@ plugin.ogcapi.LandingPageParser.prototype.hasTitle = function() {
 
 /**
  * The title
- * @return {string}
+ *
+ * @return {string|null}
  */
 plugin.ogcapi.LandingPageParser.prototype.getTitle = function() {
   return this.title_;

@@ -12,6 +12,7 @@ goog.require('plugin.ogcapi.ogcapiImportDirective');
 
 /**
  * Provides plugin tie-in.
+ *
  * @extends {os.plugin.AbstractPlugin}
  * @constructor
  */

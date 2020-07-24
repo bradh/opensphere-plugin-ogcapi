@@ -11,15 +11,20 @@
         "label": "pygeoapi Master",
         "url": "https://demo.pygeoapi.io/master"
       },
-      "ogcapi-pygeoapi-live": {
+      "ogcapi-pygeoapi-stable": {
         "type": "ogcapi",
-        "label": "pygeoapi Live",
-        "url": "http://ec2-18-222-159-167.us-east-2.compute.amazonaws.com/"
+        "label": "pygeoapi Stable",
+        "url": "https://demo.pygeoapi.io/stable"
       },
-      "pygeoapi-glosis": {
+      "ogcapi-pygeoapi-cite": {
         "type": "ogcapi",
-        "label": "Global Soil Information System (pygeoapi)",
-        "url": "https://glosis.isric.org"
+        "label": "pygeoapi CITE",
+        "url": "https://demo.pygeoapi.io/cite"
+      },
+      "ogcapi-pygeoapi-covid19": {
+        "type": "ogcapi",
+        "label": "pygeoapi COVID-19",
+        "url": "https://demo.pygeoapi.io/covid-19"
       },
       "spacebel-eo-catalog": {
         "type": "ogcapi",

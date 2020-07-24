@@ -1,10 +1,15 @@
 goog.provide('plugin.ogcapi.DataProvider');
 
+goog.require('ol.Feature');
+goog.require('ol.layer.Image');
 goog.require('os.data.ConfigDescriptor');
 goog.require('os.data.IDataProvider');
+goog.require('os.layer.Image');
 goog.require('os.net.Request');
+goog.require('os.source.ImageStatic');
 goog.require('os.ui.data.DescriptorNode');
 goog.require('os.ui.server.AbstractLoadingServer');
+goog.require('plugin.file.kml.ui.KMLNode');
 
 /**
  * The OGC API data provider
@@ -91,8 +96,9 @@ plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function(response) {
     this.onError('Expected an array of conformance statements but got something else');
     return;
   }
-  var isWFS3 = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/core');
-  var hasJSONsupport = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/geojson');
+  // TODO: extend this check to see if we support maps / tiles.
+  var isWFS3 = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/core') || conformance.includes('http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core');
+  var hasJSONsupport = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/geojson') || conformance.includes('http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson');
   if (!isWFS3 || !hasJSONsupport) {
     this.onError('Server does not claim to support WFS3 GeoJSON');
   }
@@ -146,13 +152,55 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
     return null;
   }
   var id = this.getId() + os.ui.data.BaseProvider.ID_DELIMITER + collectionid;
+  var descriptor = /** @type {os.data.ConfigDescriptor} */ (os.dataManager.getDescriptor(id));
+  if (!descriptor) {
+    descriptor = new os.data.ConfigDescriptor();
+  }
 
   var url = null;
   var links = collection['links'];
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
+    if ((link['rel'] === 'maps') || (link['rel'] === 'map')) {
+      // TODO: build this url from the stuff in link['url'] and the collection['extent']
+      url = 'https://test.cubewerx.com/cubewerx/cubeserv/demo/ogcapi/Daraa/collections/Daraa_mosaic_2019/map/default?crs=CRS84&bbox=36.0,32.51,36.25,32.7&width=1000&height=1000&format=image/png';
+      var config = {
+        'type': 'ogcapi',
+        'id': id,
+        'title': collection['title'],
+        'description': collection['description'],
+        'extent': collection['extent'],
+        'extentProjection': os.proj.EPSG4326,
+        'projection': os.proj.EPSG3857,
+        'provider': this.getLabel(),
+        // 'url': url,
+        // 'format': 'image/png',
+        'delayUpdateActive': true
+      };
+      descriptor.setBaseConfig(config);
+      break;
+    }
     if ((link['type'] === 'application/geo+json') && (link.hasOwnProperty('href'))) {
       url = link['href'];
+      var config = {
+        'type': 'geojson',
+        'id': id,
+        'title': collection['title'],
+        'description': collection['description'],
+        'extent': collection['extent'],
+        'extentProjection': os.proj.EPSG4326,
+        'projection': os.proj.EPSG3857,
+        'provider': this.getLabel(),
+        'url': url,
+        'delayUpdateActive': true
+      };
+      descriptor.setBaseConfig(config);
+      // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
+      if (url.includes('?')) {
+        url += '&limit=10000';
+      } else {
+        url += '?limit=10000';
+      }
       break;
     }
   }
@@ -160,32 +208,6 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
     return null;
   }
 
-  // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
-  if (url.includes('?')) {
-    url += '&limit=10000';
-  } else {
-    url += '?limit=10000';
-  }
-
-  var config = {
-    'type': 'geojson',
-    'id': id,
-    'title': collection['title'],
-    'description': collection['description'],
-    'extent': collection['extent'],
-    'extentProjection': os.proj.EPSG4326,
-    'projection': os.proj.EPSG3857,
-    'provider': this.getLabel(),
-    'url': url,
-    'delayUpdateActive': true
-  };
-
-  var descriptor = /** @type {os.data.ConfigDescriptor} */ (os.dataManager.getDescriptor(id));
-  if (!descriptor) {
-    descriptor = new os.data.ConfigDescriptor();
-  }
-
-  descriptor.setBaseConfig(config);
   os.dataManager.addDescriptor(descriptor);
 
   // mark the descriptor as ready if the user had it enabled previously

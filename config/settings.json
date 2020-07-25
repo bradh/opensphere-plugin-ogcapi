@@ -30,6 +30,11 @@
         "type": "ogcapi",
         "label": "SpaceBel EO-Catalog",
         "url": "https://databio.spacebel.be/eo-catalog/"
+      },
+      "ecere": {
+        "type": "ogcapi",
+        "label": "Ecere OGC API test server",
+        "url": "https://maps.ecere.com/geoapi?f=json"
       }
     }
   }

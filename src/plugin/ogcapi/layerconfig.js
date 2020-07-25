@@ -2,8 +2,8 @@ goog.provide('plugin.ogcapi.LayerConfig');
 
 goog.require('goog.log');
 goog.require('goog.log.Logger');
-goog.require('ol.source.Vector');
 goog.require('os.layer.config.AbstractLayerConfig');
+goog.require('os.source.ImageStatic');
 goog.require('plugin.ogcapi.Layer');
 
 
@@ -64,7 +64,7 @@ plugin.ogcapi.LayerConfig.prototype.createLayer = function(options) {
 
 
 /**
- * @param {ol.source.Vector} source The layer source.
+ * @param {ol.source.Image} source The layer source.
  * @param {Object<string, *>} options
  * @return {plugin.ogcapi.Layer}
  * @protected
@@ -72,14 +72,17 @@ plugin.ogcapi.LayerConfig.prototype.createLayer = function(options) {
 plugin.ogcapi.LayerConfig.prototype.getLayer = function(source, options) {
   return new plugin.ogcapi.Layer({
     'source': source,
-    'title': options['title']
+    'extent': /** @type {Array<number>} */ (options['extent']),
+    'extentProjection': options['extentProjection'],
+    'title': options['title'],
+    'url': options['url']
   });
 };
 
 
 /**
  * @param {Object} options Layer configuration options.
- * @return {ol.source.Vector}
+ * @return {ol.source.Image}
  * @protected
  *
  * @suppress {checkTypes}
@@ -91,5 +94,5 @@ plugin.ogcapi.LayerConfig.prototype.getSource = function(options) {
   // TODO: maybe something like this for the URL and style options?
   // options.features = plugin.ogcapi.getSourceFeatures(sourceId);
 
-  return new ol.source.Vector(options);
+  return new os.source.ImageStatic(options);
 };

@@ -18,30 +18,44 @@ goog.require('plugin.file.kml.ui.KMLNode');
  * @extends {os.ui.server.AbstractLoadingServer}
  * @constructor
  */
-plugin.ogcapi.DataProvider = function() {
+plugin.ogcapi.DataProvider = function () {
   plugin.ogcapi.DataProvider.base(this, 'constructor');
   this.providerType = plugin.ogcapi.ID;
 };
 goog.inherits(plugin.ogcapi.DataProvider, os.ui.server.AbstractLoadingServer);
 
+/**
+ * Base URL
+ * @type {string}
+ */
+plugin.ogcapi.DataProvider.baseUrl_;
 
 /**
  * @inheritDoc
  */
-plugin.ogcapi.DataProvider.prototype.load = function(opt_ping) {
+plugin.ogcapi.DataProvider.prototype.load = function (opt_ping) {
   plugin.ogcapi.DataProvider.base(this, 'load', opt_ping);
   this.setChildren(null);
+  this.setBaseUrl_(this.getUrl());
   new os.net.Request(this.getUrl()).getPromise().
-      then(this.onLoad, this.onError, this).
-      thenCatch(this.onError, this);
+    then(this.onLoad, this.onError, this).
+    thenCatch(this.onError, this);
 };
 
+/**
+ * @param {string} url the URL of the landing page.
+ * @private
+ */
+plugin.ogcapi.DataProvider.prototype.setBaseUrl_ = function (url) {
+  var urlObj = new URL(url);
+  this.baseUrl_ = urlObj.protocol + "//" + urlObj.host;
+};
 
 /**
  * @param {string} response
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onLoad = function(response) {
+plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
   try {
     var json = JSON.parse(response);
     if (json.hasOwnProperty('links')) {
@@ -61,9 +75,9 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function(response) {
 
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    if ((link.rel === 'conformance') && (link.type === 'application/json')) {
-      this.loadConformance(link.href);
-    }
+    // if ((link.rel === 'conformance') && (link.type === 'application/json')) {
+    //   this.loadConformance(link.href);
+    // }
     if ((link.rel === 'data') && (link.type === 'application/json')) {
       this.loadCollection(link.href);
     }
@@ -73,17 +87,17 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function(response) {
 /**
  * @param {string} conformanceurl
  */
-plugin.ogcapi.DataProvider.prototype.loadConformance = function(conformanceurl) {
+plugin.ogcapi.DataProvider.prototype.loadConformance = function (conformanceurl) {
   new os.net.Request(conformanceurl).getPromise().
-      then(this.onConformanceLoad, this.onError, this).
-      thenCatch(this.onError, this);
+    then(this.onConformanceLoad, this.onError, this).
+    thenCatch(this.onError, this);
 };
 
 /**
  * @param {string} response
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function(response) {
+plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function (response) {
   try {
     var json = JSON.parse(response);
   } catch (e) {
@@ -107,11 +121,14 @@ plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function(response) {
 /**
  * @param {string} collectionurl
  */
-plugin.ogcapi.DataProvider.prototype.loadCollection = function(collectionurl) {
+plugin.ogcapi.DataProvider.prototype.loadCollection = function (collectionurl) {
   // console.log('collection load: ' + collectionurl);
+  if (collectionurl.startsWith('/')) {
+    collectionurl = this.baseUrl_ + collectionurl;
+  }
   new os.net.Request(collectionurl).getPromise().
-      then(this.onCollectionLoad, this.onCollectionError, this).
-      thenCatch(this.onCollectionError, this);
+    then(this.onCollectionLoad, this.onCollectionError, this).
+    thenCatch(this.onCollectionError, this);
 };
 
 
@@ -119,7 +136,7 @@ plugin.ogcapi.DataProvider.prototype.loadCollection = function(collectionurl) {
  * @param {string} response
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function(response) {
+plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
   // console.log('onCollectionLoad');
   try {
     var json = JSON.parse(response);
@@ -141,7 +158,7 @@ plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function(response) {
  * @return {?os.ui.data.DescriptorNode} The child node for the provider
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
+plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
   // TODO: sanity checks
 
   let collectionid = collection['id'];
@@ -162,19 +179,21 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     if ((link['rel'] === 'maps') || (link['rel'] === 'map')) {
-      // TODO: build this url from the stuff in link['url'] and the collection['extent']
-      url = 'https://test.cubewerx.com/cubewerx/cubeserv/demo/ogcapi/Daraa/collections/Daraa_mosaic_2019/map/default?crs=CRS84&bbox=36.0,32.51,36.25,32.7&width=1000&height=1000&format=image/png';
+      var extent = /** @type {Array<number>} */ (collection['extent']['spatial']['bbox']);
+      var hrefBase = new URL(link['href']);
+      var collectionStyles = collection['styles'];
+      console.log(collectionStyles);
+      url = hrefBase.origin + hrefBase.pathname + '/default?crs=CRS84&bbox=' + extent[0] + ',' + extent[1] + ',' + extent[2] + ',' + extent[3]  + '&width=4000&height=3000&format=image/png';
       var config = {
         'type': 'ogcapi',
         'id': id,
         'title': collection['title'],
         'description': collection['description'],
-        'extent': collection['extent'],
+        'extent': extent,
         'extentProjection': os.proj.EPSG4326,
         'projection': os.proj.EPSG3857,
         'provider': this.getLabel(),
-        // 'url': url,
-        // 'format': 'image/png',
+        'url': url,
         'delayUpdateActive': true
       };
       descriptor.setBaseConfig(config);
@@ -182,6 +201,9 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
     }
     if ((link['type'] === 'application/geo+json') && (link.hasOwnProperty('href'))) {
       url = link['href'];
+      if (url.startsWith('/')) {
+        url = this.baseUrl_ + url;
+      }
       var config = {
         'type': 'geojson',
         'id': id,
@@ -222,7 +244,7 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function(collection) {
  * @param {*} e
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onError = function(e) {
+plugin.ogcapi.DataProvider.prototype.onError = function (e) {
   var msg = goog.isArray(e) ? e.join(' ') : e.toString();
   this.setErrorMessage(msg);
 };
@@ -231,7 +253,7 @@ plugin.ogcapi.DataProvider.prototype.onError = function(e) {
  * @param {*} e
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onCollectionError = function(e) {
+plugin.ogcapi.DataProvider.prototype.onCollectionError = function (e) {
   // console.log('onCollectionError');
   var msg = goog.isArray(e) ? e.join(' ') : e.toString();
   this.setErrorMessage(msg);

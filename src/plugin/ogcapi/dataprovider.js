@@ -1,15 +1,10 @@
 goog.provide('plugin.ogcapi.DataProvider');
 
-goog.require('ol.Feature');
-goog.require('ol.layer.Image');
 goog.require('os.data.ConfigDescriptor');
 goog.require('os.data.IDataProvider');
-goog.require('os.layer.Image');
 goog.require('os.net.Request');
-goog.require('os.source.ImageStatic');
 goog.require('os.ui.data.DescriptorNode');
 goog.require('os.ui.server.AbstractLoadingServer');
-goog.require('plugin.file.kml.ui.KMLNode');
 
 /**
  * The OGC API data provider
@@ -68,16 +63,15 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
   }
 
   if (!goog.isArray(links)) {
-    // console.log('Expected an array of links but got something else');
     this.onError('Expected an array of links but got something else');
     return;
   }
 
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    // if ((link.rel === 'conformance') && (link.type === 'application/json')) {
-    //   this.loadConformance(link.href);
-    // }
+    if ((link.rel === 'conformance') && (link.type === 'application/json')) {
+      this.loadConformance(link.href);
+    }
     if ((link.rel === 'data') && (link.type === 'application/json')) {
       this.loadCollection(link.href);
     }
@@ -89,8 +83,8 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
  */
 plugin.ogcapi.DataProvider.prototype.loadConformance = function (conformanceurl) {
   new os.net.Request(conformanceurl).getPromise().
-    then(this.onConformanceLoad, this.onError, this).
-    thenCatch(this.onError, this);
+    then(this.onConformanceLoad, this.onConformanceError, this).
+    thenCatch(this.onConformanceError, this);
 };
 
 /**
@@ -101,7 +95,7 @@ plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function (response) {
   try {
     var json = JSON.parse(response);
   } catch (e) {
-    this.onError('Malformed ConformanceJSON');
+    this.onError('Malformed Conformance JSON');
     return;
   }
 
@@ -110,11 +104,12 @@ plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function (response) {
     this.onError('Expected an array of conformance statements but got something else');
     return;
   }
-  // TODO: extend this check to see if we support maps / tiles.
-  var isWFS3 = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/core') || conformance.includes('http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core');
+  // TODO: extend this check to see if it supports tiles.
+  var hasFeaturesSupport = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/core') || conformance.includes('http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core');
   var hasJSONsupport = conformance.includes('http://www.opengis.net/spec/wfs-1/3.0/req/geojson') || conformance.includes('http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson');
-  if (!isWFS3 || !hasJSONsupport) {
-    this.onError('Server does not claim to support WFS3 GeoJSON');
+  var hasMapsSupport = conformance.includes('http://www.opengis.net/spec/ogcapi-maps-1/1.0/req/core') && conformance.includes('http://www.opengis.net/spec/ogcapi-maps-1/1.0/req/styles');
+  if ((!hasFeaturesSupport || !hasJSONsupport) && (!hasMapsSupport)){
+    this.onError('Server does not claim to support OGC API Maps / Features or WFS3');
   }
 };
 
@@ -176,10 +171,10 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
 
   var url = null;
   var links = collection['links'];
+  var extent = /** @type {Array<number>} */ (collection['extent']['spatial']['bbox']);
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     if ((link['rel'] === 'maps') || (link['rel'] === 'map')) {
-      var extent = /** @type {Array<number>} */ (collection['extent']['spatial']['bbox']);
       var hrefBase = new URL(link['href']);
       var collectionStyles = collection['styles'];
       console.log(collectionStyles);
@@ -209,7 +204,7 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
         'id': id,
         'title': collection['title'],
         'description': collection['description'],
-        'extent': collection['extent'],
+        'extent': extent,
         'extentProjection': os.proj.EPSG4326,
         'projection': os.proj.EPSG3857,
         'provider': this.getLabel(),
@@ -247,6 +242,15 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
 plugin.ogcapi.DataProvider.prototype.onError = function (e) {
   var msg = goog.isArray(e) ? e.join(' ') : e.toString();
   this.setErrorMessage(msg);
+};
+
+/**
+ * @param {*} e
+ * @protected
+ */
+plugin.ogcapi.DataProvider.prototype.onConformanceError = function (e) {
+  var msg = goog.isArray(e) ? e.join(' ') : e.toString();
+  this.setErrorMessage("OGC API - problem with Conformance statement: " + msg);
 };
 
 /**

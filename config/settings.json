@@ -26,15 +26,10 @@
         "label": "pygeoapi COVID-19",
         "url": "https://demo.pygeoapi.io/covid-19"
       },
-      "spacebel-eo-catalog": {
+      "cubewerx": {
         "type": "ogcapi",
-        "label": "SpaceBel EO-Catalog",
-        "url": "https://databio.spacebel.be/eo-catalog/"
-      },
-      "ecere": {
-        "type": "ogcapi",
-        "label": "Ecere OGC API test server",
-        "url": "https://maps.ecere.com/geoapi?f=json"
+        "label": "CubeWerx OGC API test server",
+        "url": "https://test.cubewerx.com/cubewerx/cubeserv/demo/ogcapi/Daraa"
       }
     }
   }

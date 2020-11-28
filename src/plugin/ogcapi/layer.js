@@ -35,8 +35,8 @@ plugin.ogcapi.Layer = function(options) {
   plugin.ogcapi.Layer.base(this, 'constructor', options);
 
   this.setHidden(false);
-  this.setOSType(os.layer.LayerType.IMAGE);
-  this.setExplicitType(os.layer.ExplicitLayerType.IMAGE);
+  // this.setOSType(os.layer.LayerType.IMAGE);
+  // this.setExplicitType(os.layer.ExplicitLayerType.IMAGE);
 
   var url = options['url'];
   var extent = ol.proj.transformExtent(options['extent'], options['extentProjection'], os.map.PROJECTION);
@@ -52,6 +52,7 @@ plugin.ogcapi.Layer = function(options) {
   if (options['title']) {
     this.setTitle('OGC API Map - ' + options['title']);
   }
+  this.setZIndex(1);
 };
 goog.inherits(plugin.ogcapi.Layer, os.layer.Image);
 os.implements(plugin.ogcapi.Layer, os.layer.ILayer.ID);

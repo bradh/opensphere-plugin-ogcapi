@@ -20,30 +20,14 @@ plugin.ogcapi.DataProvider = function () {
 goog.inherits(plugin.ogcapi.DataProvider, os.ui.server.AbstractLoadingServer);
 
 /**
- * Base URL
- * @type {string}
- */
-plugin.ogcapi.DataProvider.baseUrl_;
-
-/**
  * @inheritDoc
  */
 plugin.ogcapi.DataProvider.prototype.load = function (opt_ping) {
   plugin.ogcapi.DataProvider.base(this, 'load', opt_ping);
   this.setChildren(null);
-  this.setBaseUrl_(this.getUrl());
   new os.net.Request(this.getUrl()).getPromise().
     then(this.onLoad, this.onError, this).
     thenCatch(this.onError, this);
-};
-
-/**
- * @param {string} url the URL of the landing page.
- * @private
- */
-plugin.ogcapi.DataProvider.prototype.setBaseUrl_ = function (url) {
-  var urlObj = new URL(url);
-  this.baseUrl_ = urlObj.protocol + "//" + urlObj.host;
 };
 
 /**
@@ -54,7 +38,7 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
   try {
     var json = JSON.parse(response);
     if (json.hasOwnProperty('links')) {
-      var links = json.links;
+      var links = json['links'];
     }
   } catch (e) {
     // console.log('Malformed JSON');
@@ -67,13 +51,23 @@ plugin.ogcapi.DataProvider.prototype.onLoad = function (response) {
     return;
   }
 
+  var gotDataLink = false;
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
-    if ((link.rel === 'conformance') && (link.type === 'application/json')) {
-      this.loadConformance(link.href);
-    }
+    // TODO: turn this back on when Ecere fix their implementation
+    // if ((link.rel === 'conformance') && (link.type === 'application/json')) {
+    //   this.loadConformance(link.href);
+    // }
     if ((link.rel === 'data') && (link.type === 'application/json')) {
       this.loadCollection(link.href);
+      gotDataLink = true;
+    }
+  }
+  if (!gotDataLink) {
+    // Maybe we are at some sub-level, hope for collections
+    if (json.hasOwnProperty('collections')) {
+      var collections = json['collections'];
+      this.processCollections_(collections);
     }
   }
 };
@@ -117,11 +111,8 @@ plugin.ogcapi.DataProvider.prototype.onConformanceLoad = function (response) {
  * @param {string} collectionurl
  */
 plugin.ogcapi.DataProvider.prototype.loadCollection = function (collectionurl) {
-  // console.log('collection load: ' + collectionurl);
-  if (collectionurl.startsWith('/')) {
-    collectionurl = this.baseUrl_ + collectionurl;
-  }
-  new os.net.Request(collectionurl).getPromise().
+  var request = new os.net.Request(new URL(collectionurl, this.getUrl()).toString());
+  request.getPromise().
     then(this.onCollectionLoad, this.onCollectionError, this).
     thenCatch(this.onCollectionError, this);
 };
@@ -141,7 +132,14 @@ plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
   }
 
   var collections = json['collections'];
+  this.processCollections_(collections);
+};
 
+/**
+ * @param {Array<Object>} collections 
+ * @private
+ */
+plugin.ogcapi.DataProvider.prototype.processCollections_ = function(collections) {
   var children = /** @type {Array<!os.structs.ITreeNode>} */
     (collections.map(this.toChildNode, this).filter(os.fn.filterFalsey));
   this.setChildren(children);
@@ -170,15 +168,24 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
   }
 
   var url = null;
+  var coordinateReferenceSystems = collection['crs'];
   var links = collection['links'];
   var extent = /** @type {Array<number>} */ (collection['extent']['spatial']['bbox']);
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     if ((link['rel'] === 'maps') || (link['rel'] === 'map')) {
-      var hrefBase = new URL(link['href']);
-      var collectionStyles = collection['styles'];
-      console.log(collectionStyles);
-      url = hrefBase.origin + hrefBase.pathname + '/default?crs=CRS84&bbox=' + extent[0] + ',' + extent[1] + ',' + extent[2] + ',' + extent[3]  + '&width=4000&height=3000&format=image/png';
+      var hrefBase = new URL(link['href'], this.getUrl());
+      // var collectionStyles = collection['styles'];
+      // console.log(collectionStyles);
+      var crs = coordinateReferenceSystems[0];
+      if (coordinateReferenceSystems.includes('http://www.opengis.net/def/crs/OGC/1.3/CRS84')) {
+        crs = 'http://www.opengis.net/def/crs/OGC/1.3/CRS84';
+      }
+      if (extent.length == 1) {
+        // Why?
+        extent = extent[0];
+      }
+      url = hrefBase.origin + hrefBase.pathname + '/default?crs=' + crs + '&bbox=' + extent[0] + ',' + extent[1] + ',' + extent[2] + ',' + extent[3]  + '&width=4000&height=3000&f=png';
       var config = {
         'type': 'ogcapi',
         'id': id,
@@ -192,13 +199,16 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
         'delayUpdateActive': true
       };
       descriptor.setBaseConfig(config);
-      break;
     }
     if ((link['type'] === 'application/geo+json') && (link.hasOwnProperty('href'))) {
-      url = link['href'];
-      if (url.startsWith('/')) {
-        url = this.baseUrl_ + url;
+      var href = link['href'];
+      // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
+      if (href.includes('?')) {
+        href += '&limit=10000';
+      } else {
+        href += '?limit=10000';
       }
+      url = new URL(href, this.getUrl());
       var config = {
         'type': 'geojson',
         'id': id,
@@ -212,13 +222,6 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
         'delayUpdateActive': true
       };
       descriptor.setBaseConfig(config);
-      // TODO: we should do proper paging, but more than 10000 is going to be terrible anyway.
-      if (url.includes('?')) {
-        url += '&limit=10000';
-      } else {
-        url += '?limit=10000';
-      }
-      break;
     }
   }
   if (!url) {

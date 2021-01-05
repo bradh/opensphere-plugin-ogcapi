@@ -6,6 +6,11 @@
         "label": "GeoSolutions WFS3",
         "url": "http://cloudsdi.geo-solutions.it/geoserver/wfs3/"
       },
+      "geoserver-features": {
+        "type": "ogcapi",
+        "label": "GeoSolutions Features 1",
+        "url": "https://vtp2.geo-solutions.it/geoserver/ogc/features"
+      },
       "ogcapi-pygeoapi-master": {
         "type": "ogcapi",
         "label": "pygeoapi Master",

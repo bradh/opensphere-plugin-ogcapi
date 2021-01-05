@@ -140,6 +140,9 @@ plugin.ogcapi.DataProvider.prototype.onCollectionLoad = function (response) {
  * @private
  */
 plugin.ogcapi.DataProvider.prototype.processCollections_ = function(collections) {
+  if (!collections) {
+    return;
+  }
   var children = /** @type {Array<!os.structs.ITreeNode>} */
     (collections.map(this.toChildNode, this).filter(os.fn.filterFalsey));
   this.setChildren(children);

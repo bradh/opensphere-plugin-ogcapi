@@ -20,6 +20,12 @@ plugin.ogcapi.TileSource = function (options) {
      */
     this.zoomOffset = options['zoomOffset'] || 0;
 
+    /**
+     * @type {Array<Object>}
+     * @protected
+     */
+    this.tileMatrixLimits = options['tileMatrixLimits'];
+
     plugin.ogcapi.TileSource.base(this, 'constructor', options);
 };
 goog.inherits(plugin.ogcapi.TileSource, ol.source.XYZ);
@@ -49,12 +55,8 @@ plugin.ogcapi.TileSource.prototype.setUrls = function (urls) {
  * @protected
  */
 plugin.ogcapi.TileSource.prototype.createFromTemplate = function (template) {
-    // handle both  {x}/{y}/{z} and %x/%y/%z formats
-    var zRegEx = /\{z\}|\%z/g;
-    var xRegEx = /\{x\}|\%x/g;
-    var yRegEx = /\{y\}|\%y/g;
-    var dashYRegEx = /\{-y\}/g;
     var offset = this.zoomOffset;
+    var tileMatrixLimits = this.tileMatrixLimits;
     return (
         /**
          * @param {ol.TileCoord} tileCoord Tile Coordinate.
@@ -66,14 +68,20 @@ plugin.ogcapi.TileSource.prototype.createFromTemplate = function (template) {
             if (tileCoord === null) {
                 return undefined;
             } else {
+                var matrixIndex = tileCoord[0] + offset;
+                var matrix = tileMatrixLimits[matrixIndex];
+                var column = tileCoord[1];
+                if ((column < matrix['minTileCol']) || (column > matrix['maxTileCol'])) {
+                    return undefined;
+                }
+                var row = (-tileCoord[2] - 1);
+                if ((row < matrix['minTileRow']) || (row > matrix['maxTileRow'])) {
+                    return undefined;
+                }
                 return template
-                    .replace('{tileMatrix}', 'EPSG:4326:' + (tileCoord[0] + offset).toString())
-                    .replace('{tileCol}', tileCoord[1].toString())
-                    .replace('{tileRow}', (-tileCoord[2] - 1).toString())
-                    .replace(dashYRegEx, function () {
-                        var y = (1 << tileCoord[0]) - tileCoord[2] - 1;
-                        return y.toString();
-                    });
+                    .replace('{tileMatrix}', matrix['tileMatrix'])
+                    .replace('{tileCol}', column.toString())
+                    .replace('{tileRow}', row.toString());
             }
         }
     );

@@ -224,7 +224,7 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
         if ((link['type'] === 'application/json') && (link.hasOwnProperty('href') && (link['rel'] === 'tiles'))) {
             var request = new os.net.Request(new URL(link['href'], this.getUrl()).toString());
             request.getPromise().
-                then(this.onTileCollectionLoad.bind(this, id, collection['title'], extent, styleid), this.onError, this).
+                then(this.onTileCollectionLoad.bind(this, id, collection['title'], styleid), this.onError, this).
                 thenCatch(this.onError, this);
         } else if ((link['type'] === 'application/geo+json') && (link.hasOwnProperty('href'))) {
             var href = link['href'];
@@ -270,7 +270,7 @@ plugin.ogcapi.DataProvider.prototype.toChildNode = function (collection) {
  * @param {string|null} styleid
  * @protected
  */
-plugin.ogcapi.DataProvider.prototype.onTileCollectionLoad = function (id, title, extent, styleid, response) {
+plugin.ogcapi.DataProvider.prototype.onTileCollectionLoad = function (id, title, styleid, response) {
     try {
         var json = JSON.parse(response);
     } catch (e) {
@@ -313,8 +313,6 @@ plugin.ogcapi.DataProvider.prototype.onTileCollectionLoad = function (id, title,
                     'type': plugin.ogcapi.XYZLayerConfig.ID,
                     'id': id,
                     'title': title,
-                    'extent': extent,
-                    'extentProjection': os.proj.EPSG4326,
                     'projection': projection,
                     'url': href,
                     'provider': this.getLabel(),

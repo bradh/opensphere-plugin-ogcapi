@@ -7,6 +7,7 @@ goog.require('os.plugin.PluginManager');
 goog.require('os.ui.ProviderImportUI');
 goog.require('plugin.ogcapi.DataProvider');
 goog.require('plugin.ogcapi.LayerConfig');
+goog.require('plugin.ogcapi.XYZLayerConfig');
 goog.require('plugin.ogcapi.ID');
 goog.require('plugin.ogcapi.mime');
 goog.require('plugin.ogcapi.ogcapiImportDirective');
@@ -29,6 +30,8 @@ goog.inherits(plugin.ogcapi.Plugin, os.plugin.AbstractPlugin);
  */
 plugin.ogcapi.Plugin.prototype.init = function() {
   os.layer.config.LayerConfigManager.getInstance().registerLayerConfig(plugin.ogcapi.LayerConfig.ID, plugin.ogcapi.LayerConfig);
+  var lcm = os.layer.config.LayerConfigManager.getInstance();
+  lcm.registerLayerConfig(plugin.ogcapi.XYZLayerConfig.ID, plugin.ogcapi.XYZLayerConfig);
   var dm = os.data.DataManager.getInstance();
   dm.registerProviderType(new os.data.ProviderEntry(
       plugin.ogcapi.ID,
@@ -37,6 +40,7 @@ plugin.ogcapi.Plugin.prototype.init = function() {
       'OGC API layers'
   ));
   dm.registerDescriptorType(plugin.ogcapi.ID, os.data.ConfigDescriptor);
+  dm.registerDescriptorType("ogcapi_xyz", os.data.ConfigDescriptor);
 
   var im = os.ui.im.ImportManager.getInstance();
   im.registerImportUI(plugin.ogcapi.ID, new os.ui.ProviderImportUI('<ogcapi></ogcapi>'));

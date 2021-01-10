@@ -9,7 +9,7 @@ goog.require('plugin.ogcapi.Layer');
 
 
 /**
- * Config for a layer containing OGC API data.
+ * Config for a layer containing OGC API "map"" data.
  *
  * @extends {os.layer.config.AbstractLayerConfig}
  * @constructor

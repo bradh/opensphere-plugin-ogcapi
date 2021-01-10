@@ -3,13 +3,18 @@
     "providers": {
       "geoserver-wfs3": {
         "type": "ogcapi",
-        "label": "GeoSolutions WFS3",
+        "label": "GeoSolutions WFS3 (Cloud SDI)",
         "url": "http://cloudsdi.geo-solutions.it/geoserver/wfs3/"
       },
       "geoserver-features": {
         "type": "ogcapi",
-        "label": "GeoSolutions Features 1",
+        "label": "GeoSolutions OGC API Features (VTP2)",
         "url": "https://vtp2.geo-solutions.it/geoserver/ogc/features"
+      },
+      "geoserver-tiles": {
+        "type": "ogcapi",
+        "label": "Local Geoserver OGC API Tiles",
+        "url": "http://localhost:8080/geoserver/ogc/tiles"
       },
       "ogcapi-pygeoapi-master": {
         "type": "ogcapi",
